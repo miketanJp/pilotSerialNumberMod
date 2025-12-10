@@ -2,7 +2,7 @@
 
 **RELEASE DATE:** 2025/12/10  
 **MOD VERSION:** 1.0.0  
-**MOD LINK (Mod Project):** [GitHub Repository](https://github.com/miketanJp/pilotSerialNumberMod)
+**MOD LINK (Mod Project):** [GitHub Repository](https://github.com/miketanJp/pilotSerialNumberMod)<br>
 **PROGRAMMING LANGUAGE:** C-Sharp 7.3 (Framework v4.7.2)
 
 ---
