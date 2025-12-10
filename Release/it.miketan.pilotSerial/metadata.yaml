@@ -2,8 +2,8 @@ priority: 0
 colorHue: 0.499
 id: it.miketan.pilotSerial
 ver: 1.0.0
-url: https://github.com/miketanJp/pilotSerialNumberMod
-includesConfigOverrides: false
+url: https://next.nexusmods.com/profile/miketanJp
+includesConfigOverrides: true
 includesConfigEdits: false
 includesConfigTrees: false
 includesLibraries: true
@@ -15,25 +15,4 @@ gameVersionMin: 2.0
 gameVersionMax: 
 name: Pilot Serial Number Mod
 desc: >-
-  This mod introduces a unique serial number system for each pilot in the game.
-  Every pilot's Biography is automatically assigned a serial in the following format
-
-  [b]PIL-XXXX-XXXX[/b]
-
-  The serial is displayed in the pilot’s info card and is generated only once.
-  It is cached in memory, preventing duplicates even when the UI is refreshed or the pilot is edited.
-  On this regard the mod is completely safe to remove, as the value is inserted directly in bio (a value that already exists in vanilla).
-
-  [b]KEY FEATURES[/b]
-  - Unique serial number automatically generated for every pilot.
-  - In-memory caching to prevent regeneration during UI refreshes.
-  - Serial displayed directly in the pilot’s bio.
-  - Compatible with both the editor and standard pilot view.
-  - Safe: does not affect any other pilot stats or attributes.
-
-  [b]MOD AUTHOR[/b]
-  - [i].Miketan[/i]
-
-  [b]CREDITS[/b]
-  - [i]Harmony Framework for the patching[/i]
-  - [i]Phantom Brigade Modding System (which would be not possible to mod otherwise)[/i]
+  This mod makes possible to insert a user serial name inside a pilot's biography.
