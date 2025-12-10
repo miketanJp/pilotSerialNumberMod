@@ -3,10 +3,13 @@
 **RELEASE DATE:** 2025/12/10  
 **MOD VERSION:** 1.0.0  
 **MOD LINK (Mod Project):** [GitHub Repository](https://github.com/miketanJp/pilotSerialNumberMod)
+**PROGRAMMING LANGUAGE:** C-Sharp 7.3 (Framework v4.7.2)
 
 ---
 
 ## MOD INTRO
+
+![demo](./demo.gif)<br>
 This mod introduces a unique serial number system for each pilot in the game.<br>Every pilot's Biography is automatically assigned a serial in the format:
 
 ```PIL-XXXX-XXXX```
@@ -24,13 +27,15 @@ On this regard the mod is completely safe to remove, as the value is inserted di
 ---
 
 ## CREDITS
-.Miketan
+- .Miketan
+- Harmony Framework for the patching
+- Phantom Brigade Modding System (which would be not possible to mod otherwise)
 
 ---
 
 ## MOD STATUS
-- **Steam Workshop:** 🟢  
-  [Steam Workshop Link](https://steamcommunity.com/sharedfiles/filedetails/?id=xxxxxxx)
+- **Steam Workshop:** 🟡  
+  [Steam Workshop Link - TBA](#)
 - **Nexus Mod:** 🟡  
   [Nexus Mod Link - TBA](#)
 
@@ -49,4 +54,5 @@ To install the mod:
 ---
 
 ## CHANGELOG
+- Phantom Brigade 2.0 Support
 - Initial Release
