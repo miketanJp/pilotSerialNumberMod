@@ -5,7 +5,7 @@ namespace it.miketan.PilotSerial.PilotSN
 {
     public static class OverworldUtilityCustom
     {
-        // Mappa statica per associare dati custom a qualsiasi PersistentEntity
+        //SetMemory Custom per ospitare la stringa (quando e se ci sarà ufficialmente un SetMemory per le stringhe.
         private static Dictionary<PersistentEntity, SortedDictionary<string, string>> memory
             = new Dictionary<PersistentEntity, SortedDictionary<string, string>>();
 
@@ -23,7 +23,7 @@ namespace it.miketan.PilotSerial.PilotSN
 
             return false;
         }
-
+        
         public static void SetMemorySnValue(this PersistentEntity entity, string key, string value)
         {
             if (entity == null || string.IsNullOrEmpty(key))
