@@ -1,78 +1,135 @@
-using System.Collections.Generic;
+using System;
 using HarmonyLib;
-using it.miketan.PilotSerial.PilotSN;
-using PhantomBrigade;
-using PhantomBrigade.Data;
-using PhantomBrigade.Overworld;
-using Tayx.Graphy.Utils.NumString;
+using it.miketan.PilotSerial.utilities;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace it.miketan.PilotSerial
 {
     [HarmonyPatch]
     public class Patch
     {
+        // Postfix sul redraw della vista del pilota: aggiunge/riusa una label NGUI con il seriale senza toccare la bio
         [HarmonyPatch(typeof(CIViewBasePilotInfoExtended), "RedrawForPilot")]
         [HarmonyPostfix]
-        internal static void ApplyPilotSn(PersistentEntity pilot)
+        public static void RedrawForPilot_Postfix(CIViewBasePilotInfoExtended __instance, PersistentEntity pilot)
         {
-            Debug.LogFormat("[PS] - In esecuzione...");
-
-            ApplyOnEditStartCustom(pilot);
-
-            Debug.LogFormat("[PS] - Esecuzione completata.");
+            InjectForAnchor(__instance?.coreLabelSummary, pilot);
         }
 
+        // Effettua il postfix di InjectForAnchor anche nell'editor (CIViewBaseEditor) in fase di avvio editing
         [HarmonyPatch(typeof(CIViewBaseEditor), "OnEditStart")]
         [HarmonyPostfix]
-        internal static void EditStartPostfix(PersistentEntity pilot)
+        public static void Editor_OnEditStart_Postfix(CIViewBaseEditor __instance, PersistentEntity pilot)
         {
-            if (pilot == null)
-            {
-                pilot = IDUtility.GetLinkedPilot(pilot);
-            }
-
-            ApplyOnEditStartCustom(pilot);
+            InjectForAnchor(__instance?.inputBio != null ? __instance.inputBio.label : null, pilot);
         }
 
-
-        private static void ApplyOnEditStartCustom(PersistentEntity pilot)
+        // Entry point condiviso: gestisce visibilità/creazione/aggiornamento partendo dall'anchor
+        private static void InjectForAnchor(UILabel anchor, PersistentEntity pilot)
         {
-            if (pilot == null)
+            try
             {
-                Debug.LogWarning("[PS] - Pilota nullo.");
-                return;
+                if (pilot == null || !pilot.isPilotTag || pilot.isDestroyed)
+                {
+                    ToggleSerialLabel(anchor, false);
+                    return;
+                }
+
+                var sn = PilotSnUtility.GetOrCreate(pilot);
+                if (string.IsNullOrEmpty(sn)) return;
+                if (anchor == null) return;
+                var label = FindOrCreateSerialLabel(anchor, anchor.transform.parent);
+                if (label == null) return;
+
+                ApplyStyleAndShow(label, anchor, string.Concat(SerialPrefix, sn));
             }
-            
-            float pilotSnFloat = PilotSnUtility.GetOrCreateFloat(pilot);
-            
-            //Metodi usati per generare la stringa alfanumerica; OverworldUtility non ha un TryGetMemory per il tipo Stringa.
-            //string bioValue = pilot.hasPilotBio ? pilot.pilotBio.s : string.Empty;
-            //string pilotSn = PilotSnUtility.GetOrCreate(pilot);
-
-            //bool snMemoryFound = OverworldUtility.TryGetMemoryFloat(pilot, "pilot_info_stats_sn", out string value);
-            //value = pilotSnSn;
-
-            // Controllo se il pilota è valido
-            if (!pilot.isPilotTag)
+            catch (Exception e)
             {
-                Debug.LogWarningFormat("[PS] - Pilota non valido.");
-                return;
+                Debug.LogWarning($"[PS] Serial label inject failed: {e.Message}");
             }
+        }
 
-            bool snFMemoryFound = OverworldUtility.TryGetMemoryFloat(pilot, "pilot_info_stats_sn", out float value);
-            value = pilotSnFloat;
-            
-            // Controllo se al pilota è già stato assegnato il S/N
-            if (!snFMemoryFound)
+        private const string SerialNodeName = "PS_Label_Serial";
+        private const string SerialPrefix = "P-S/N: ";
+        private static readonly Color SerialColor = new Color(0.85f, 0.9f, 1f, 1f);
+        private const int SerialVerticalOffset = 18;
+
+        private static UILabel FindOrCreateSerialLabel(UILabel anchor, Transform parent)
+        {
+            if (anchor == null || parent == null) return null;
+
+            var tf = parent.Find(SerialNodeName);
+            UILabel label;
+            if (tf == null)
             {
-                OverworldUtility.SetMemoryFloat(pilot, "pilot_info_stats_sn", value);
-                Debug.LogFormat($"[PS] - Codice Seriale pilota assegnato a {pilot.nameInternal.s}: {value}.");
+                // Clona l'etichetta esistente per ereditare stile, font, materiali e settaggi NGUI
+                var clone = Object.Instantiate(anchor, parent);
+                label = clone;
+                var go = label.gameObject;
+                go.name = SerialNodeName;
+                go.layer = 5; // layer UI
+
+                var widget = go.GetComponent<UIWidget>();
+                if (widget != null)
+                {
+                    InitializeAnchors(widget, anchor.transform);
+                    // Posiziona sotto l'anchor mantenendo la stessa larghezza
+                    widget.bottomAnchor.Set(anchor.transform, 1f, SerialVerticalOffset);
+                    widget.topAnchor.Set(anchor.transform, 1f, SerialVerticalOffset + widget.height);
+                    widget.updateAnchors = UIRect.AnchorUpdate.OnUpdate;
+                    widget.ResetAnchors();
+                    widget.UpdateAnchors();
+                }
+
+                // Rimuovi eventuali figli temporanei del clone (UILabelSymbols) per farli rigenerare correttamente
+                try { NGUITools.DestroyChildren(label.transform); } catch { }
             }
             else
             {
-                Debug.LogWarningFormat($"[PS] - Il codice Seriale del pilota è già presente in cache. S/N: {value}");
+                label = tf.GetComponent<UILabel>();
+                if (label == null)
+                {
+                    Debug.LogWarning("[PS] Found node serial without UILabel: name used from other elements?");
+                    return null;
+                }
+            }
+
+            return label;
+        }
+
+        private static void InitializeAnchors(UIWidget widget, Transform t)
+        {
+            if (widget == null || t == null) return;
+            widget.leftAnchor.Set(t, 0f, 0f);
+            widget.rightAnchor.Set(t, 1f, 0f);
+            widget.topAnchor.Set(t, 1f, 0f);
+            widget.bottomAnchor.Set(t, 0f, 0f);
+            widget.updateAnchors = UIRect.AnchorUpdate.OnUpdate;
+            widget.ResetAnchors();
+            widget.UpdateAnchors();
+        }
+
+        private static void ApplyStyleAndShow(UILabel label, UILabel anchor, string text)
+        {
+            label.text = text;
+            label.color = SerialColor;
+            label.fontSize = anchor.fontSize; // mantiene lo stile del font usato nel gioco.
+            label.depth = anchor.depth + 1;
+            label.gameObject.SetActive(true);
+        }
+
+        private static void ToggleSerialLabel(UILabel anchor, bool visible)
+        {
+            if (anchor == null) return;
+            var parent = anchor.transform?.parent;
+            if (parent == null) return;
+            var tf = parent.Find(SerialNodeName);
+            if (tf != null)
+            {
+                tf.gameObject.SetActive(visible);
             }
         }
+        // Fine helpers
     }
 }

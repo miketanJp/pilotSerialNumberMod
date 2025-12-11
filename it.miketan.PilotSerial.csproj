@@ -61,9 +61,7 @@
     <ItemGroup>
         <Compile Include="ModLink.cs"/>
         <Compile Include="Patch.cs"/>
-        <Compile Include="PilotSN\IDUtilityCustom.cs" />
-        <Compile Include="PilotSN\OverworldUtilityCustom.cs"/>
-        <Compile Include="PilotSN\PilotSnUtility.cs"/>
+        <Compile Include="utilities\PilotSnUtility.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
     </ItemGroup>
     <ItemGroup>
