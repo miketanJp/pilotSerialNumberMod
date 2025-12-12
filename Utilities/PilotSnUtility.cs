@@ -17,7 +17,7 @@ namespace it.miketan.PilotSerial.Utilities
     internal static class PilotSnUtility
     {
         private static bool _loaded;
-        private static string saveName;
+        private static string _saveName;
         
 /*        === Dictionary _serialCache crea il seguente output per il file YAML: ===
             serialCache:
@@ -38,16 +38,16 @@ namespace it.miketan.PilotSerial.Utilities
             {
                 try
                 {
-                    saveName = DataManagerSave.saveName;
-                    Debug.LogFormat("[PSN] - Cache directory name: " + saveName);
+                    _saveName = DataManagerSave.saveName;
+                    Debug.LogFormat("[PSN] - Cache directory name: " + _saveName);
                     
                     var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                    return Path.Combine(dir, saveName);
+                    return Path.Combine(dir, _saveName);
                 }
                 catch
                 {
                     Debug.LogWarningFormat("[PSN] - Cache directory could not be located. Creating it.");
-                    return Path.Combine(Environment.CurrentDirectory, saveName);
+                    return Path.Combine(Environment.CurrentDirectory, _saveName);
                 }
             }
         }
@@ -63,13 +63,15 @@ namespace it.miketan.PilotSerial.Utilities
             var name = pilot.nameInternal.s;
             var faction = pilot.faction.s;
 
-            List<string> bannedPilotList = new List<string>()
-            {
-                "pb_pilot_01",
-                "pb_pilot_02",
-                "pb_pilot_03",
-                "pb_pilot_04",
-            };
+            //Filtra i piloti starter disponibili a inizio gioco.
+            //Evita che in differenti salvataggi, essendo i nameInternal uguali ad ogni istanza del salvataggio,
+            //si ritrovano lo stesso seriale assegnato a tutti gli internal con i seguenti nomi.
+            List<string> bannedPilotsList = new List<string>();
+            
+            bannedPilotsList.Add("pb_pilot_01");
+            bannedPilotsList.Add("pb_pilot_02");
+            bannedPilotsList.Add("pb_pilot_03");
+            bannedPilotsList.Add("pb_pilot_04");
             
             EnsureLoaded();
 
@@ -88,22 +90,18 @@ namespace it.miketan.PilotSerial.Utilities
             {
                 entry.pilotFaction = faction;
             }
-
-            //Filtra i piloti non serializzando le mappe per i piloti starter a inizio campagna;
-            //Evita che in differenti salvataggi, essendo i nameInternal uguali, si ritrovano lo stesso seriale.
-            switch (bannedPilotList.Contains(name))
+            
+            if (bannedPilotsList.ToList().Contains(name))
             {
-                case false:
-                    TrySaveCacheYaml(CacheFilePath); //Salva le modifiche su un file di cache;
-                    Debug.LogFormat("[PSN] - name: " + name + " - " + "SERIAL NOT AVAILABLE FOR STARTER PB PILOTS.");
-                    break;
-                case true:
-                    Debug.LogFormat("[PSN] - name: " + name);
-                    break;
+                Debug.LogFormat("[PSN] - name: " + name + " - BANNED: no serial generated/saved.");
+                return "";
             }
-
-            return bannedPilotList.Contains(name) ? "" : entry.serial;
-
+            
+            TrySaveCacheYaml(CacheFilePath); //Salva le modifiche su un file di cache;
+            Debug.LogFormat("[PSN] - name: " + name);
+            
+            return entry.serial;
+            
         }
 
         // Genera un seriale dal pattern PIL-XXXX-YYYY [A-Z][0-9]
