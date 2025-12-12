@@ -3,7 +3,7 @@ colorHue: 0.499
 id: it.miketan.pilotSerial
 ver: 1.0.0
 url: https://next.nexusmods.com/profile/miketanJp
-includesConfigOverrides: true
+includesConfigOverrides: false
 includesConfigEdits: false
 includesConfigTrees: false
 includesLibraries: true
