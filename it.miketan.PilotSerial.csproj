@@ -34,34 +34,37 @@
     </PropertyGroup>
     <ItemGroup>
         <Reference Include="0Harmony">
-            <HintPath>D:\Steam\steamapps\common\Phantom Brigade\PhantomBrigade_Data\Managed\0Harmony.dll</HintPath>
+            <HintPath>Z:\Steam\steamapps\common\Phantom Brigade\PhantomBrigade_Data\Managed\0Harmony.dll</HintPath>
         </Reference>
         <Reference Include="Assembly-CSharp">
-            <HintPath>D:\Steam\steamapps\common\Phantom Brigade\PhantomBrigade_Data\Managed\Assembly-CSharp.dll</HintPath>
+            <HintPath>Z:\Steam\steamapps\common\Phantom Brigade\PhantomBrigade_Data\Managed\Assembly-CSharp.dll</HintPath>
         </Reference>
         <Reference Include="Assembly-CSharp-firstpass">
-            <HintPath>D:\Steam\steamapps\common\Phantom Brigade\PhantomBrigade_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+            <HintPath>Z:\Steam\steamapps\common\Phantom Brigade\PhantomBrigade_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
         </Reference>
         <Reference Include="Entitas">
-            <HintPath>D:\Steam\steamapps\common\Phantom Brigade\PhantomBrigade_Data\Managed\Entitas.dll</HintPath>
+            <HintPath>Z:\Steam\steamapps\common\Phantom Brigade\PhantomBrigade_Data\Managed\Entitas.dll</HintPath>
         </Reference>
         <Reference Include="Entitas.CodeGeneration.Attributes">
-            <HintPath>D:\Steam\steamapps\common\Phantom Brigade\PhantomBrigade_Data\Managed\Entitas.CodeGeneration.Attributes.dll</HintPath>
+            <HintPath>Z:\Steam\steamapps\common\Phantom Brigade\PhantomBrigade_Data\Managed\Entitas.CodeGeneration.Attributes.dll</HintPath>
         </Reference>
         <Reference Include="System">
-            <HintPath>D:\Steam\steamapps\common\Phantom Brigade\PhantomBrigade_Data\Managed\System.dll</HintPath>
+            <HintPath>Z:\Steam\steamapps\common\Phantom Brigade\PhantomBrigade_Data\Managed\System.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine">
-            <HintPath>D:\Steam\steamapps\common\Phantom Brigade\PhantomBrigade_Data\Managed\UnityEngine.dll</HintPath>
+            <HintPath>Z:\Steam\steamapps\common\Phantom Brigade\PhantomBrigade_Data\Managed\UnityEngine.dll</HintPath>
         </Reference>
         <Reference Include="UnityEngine.CoreModule">
-            <HintPath>D:\Steam\steamapps\common\Phantom Brigade\PhantomBrigade_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+            <HintPath>Z:\Steam\steamapps\common\Phantom Brigade\PhantomBrigade_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
         </Reference>
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="Models\CacheRoot.cs" />
+        <Compile Include="Models\PilotEntry.cs" />
         <Compile Include="ModLink.cs"/>
         <Compile Include="Patch.cs"/>
-        <Compile Include="utilities\PilotSnUtility.cs" />
+        <Compile Include="UI\UIInjector.cs" />
+        <Compile Include="Utilities\PilotSnUtility.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
     </ItemGroup>
     <ItemGroup>
