@@ -66,13 +66,16 @@ namespace it.miketan.PilotSerial.Utilities
             //Filtra i piloti starter disponibili a inizio gioco.
             //Evita che in differenti salvataggi, essendo i nameInternal uguali ad ogni istanza del salvataggio,
             //si ritrovano lo stesso seriale assegnato a tutti gli internal con i seguenti nomi.
-            List<string> bannedPilotsList = new List<string>();
+            var bannedPilotsList = new List<string>
+            {
+                "pb_pilot_01",
+                "pb_pilot_02",
+                "pb_pilot_03",
+                "pb_pilot_04"
+            };
             
-            bannedPilotsList.Add("pb_pilot_01");
-            bannedPilotsList.Add("pb_pilot_02");
-            bannedPilotsList.Add("pb_pilot_03");
-            bannedPilotsList.Add("pb_pilot_04");
-            
+            Debug.Log($"[PSN] - banned pilot list: " + bannedPilotsList.ToList());
+
             EnsureLoaded();
 
             if (!_serialCache.TryGetValue(name, out var entry))
@@ -80,28 +83,29 @@ namespace it.miketan.PilotSerial.Utilities
                 entry = new PilotEntry();
                 _serialCache[name] = entry;
             }
-
+            
             if (string.IsNullOrEmpty(entry.serial))
             {
                 entry.serial = GeneratePilotSn();
             }
 
-            if (string.IsNullOrEmpty(entry.pilotFaction))
+            if (string.IsNullOrEmpty(entry.faction))
             {
-                entry.pilotFaction = faction;
+                entry.faction = faction;
             }
             
-            if (bannedPilotsList.ToList().Contains(name))
+            if (!bannedPilotsList.Contains(name, StringComparer.OrdinalIgnoreCase))
+            {
+                TrySaveCacheYaml(CacheFilePath); //Salva le modifiche su un file di cache;
+                Debug.LogFormat("[PSN] - name: " + name);
+            }
+            else
             {
                 Debug.LogFormat("[PSN] - name: " + name + " - BANNED: no serial generated/saved.");
-                return "";
+                return entry.serial = "";
             }
-            
-            TrySaveCacheYaml(CacheFilePath); //Salva le modifiche su un file di cache;
-            Debug.LogFormat("[PSN] - name: " + name);
-            
+                            
             return entry.serial;
-            
         }
 
         // Genera un seriale dal pattern PIL-XXXX-YYYY [A-Z][0-9]
