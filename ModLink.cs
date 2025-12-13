@@ -12,7 +12,7 @@ namespace it.miketan.PilotSerial
             ModID = modID;
             ModPath = metadata.path;
 
-            EnableHarmonyFileLog(); //Scommentare per eventuale debug della libreria; viene generato un file di testo sul desktop.
+            //EnableHarmonyFileLog(); //Scommentare per eventuale debug della libreria; viene generato un file di testo sul desktop.
         }
     }
 }
