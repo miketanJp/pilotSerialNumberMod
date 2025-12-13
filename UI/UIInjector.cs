@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using it.miketan.PilotSerial.Utilities;
@@ -8,20 +10,45 @@ namespace it.miketan.PilotSerial.UI
     internal class UIInjector
     {
         private const string SerialNodeName = "PS_Label_Serial";
-        private const string SerialPrefix = "P-S/N: ";
+        private const string SerialPrefix = "S/N: ";
         private static readonly Color SerialColor = new Color(0.85f, 0.9f, 1f, 1f);
-        private const int SerialVerticalOffset = 2;
+        private const int SerialVerticalOffset = 1;
 
         // Entry point condiviso: gestisce visibilità/creazione/aggiornamento partendo dall'anchor
         public static void InjectLabel(UILabel anchor, PersistentEntity pilot)
         {
+            //Filtra i piloti starter disponibili a inizio gioco.
+            //Evita che in differenti salvataggi, essendo i nameInternal uguali ad ogni istanza del salvataggio,
+            //si ritrovano lo stesso seriale assegnato a tutti gli internal con i seguenti nomi.
+            var bannedPilotsList = new List<string>
+            {
+                "pb_pilot_01",
+                "pb_pilot_02",
+                "pb_pilot_03",
+                "pb_pilot_04"
+            };
+
             try
             {
-                if (pilot == null || !pilot.isPilotTag || pilot.isDestroyed)
+                if (pilot == null)
                 {
                     ToggleSerialLabel(anchor, false);
                     return;
                 }
+
+                if (!pilot.isPilotTag || pilot.isDestroyed)
+                {
+                    ToggleSerialLabel(anchor, false);
+                    return;
+                }
+                
+                var name = pilot.nameInternal.s;
+                if (name != null && bannedPilotsList.Contains(name, StringComparer.OrdinalIgnoreCase))
+                {
+                    ToggleSerialLabel(anchor, false);
+                    return;
+                }
+
 
                 var sn = PilotSnUtility.GetOrCreate(pilot);
                 if (string.IsNullOrEmpty(sn)) return;
@@ -79,7 +106,8 @@ namespace it.miketan.PilotSerial.UI
                 label = tf.GetComponent<UILabel>();
                 if (label == null)
                 {
-                    Debug.LogWarningFormat($"[PSN] - Found node serial without UILabel: name used from other elements?");
+                    Debug.LogWarningFormat(
+                        $"[PSN] - Found node serial without UILabel: name used from other elements?");
                     return null;
                 }
             }

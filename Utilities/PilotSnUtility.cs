@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using it.miketan.PilotSerial.Models;
 using PhantomBrigade.Data;
+using PhantomBrigade.Game;
 using PhantomBrigade.Mods;
 
 namespace it.miketan.PilotSerial.Utilities
@@ -18,7 +19,7 @@ namespace it.miketan.PilotSerial.Utilities
     {
         private static bool _loaded;
         private static string _saveName;
-        
+
 /*        === Dictionary _serialCache crea il seguente output per il file YAML: ===
             serialCache:
               pilot_1: [pilota standard ricavato da save_internal/quicksave/custom]
@@ -40,7 +41,7 @@ namespace it.miketan.PilotSerial.Utilities
                 {
                     _saveName = DataManagerSave.saveName;
                     Debug.LogFormat("[PSN] - Cache directory name: " + _saveName);
-                    
+
                     var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
                     return Path.Combine(dir, _saveName);
                 }
@@ -63,9 +64,7 @@ namespace it.miketan.PilotSerial.Utilities
             var name = pilot.nameInternal.s;
             var faction = pilot.faction.s;
 
-            //Filtra i piloti starter disponibili a inizio gioco.
-            //Evita che in differenti salvataggi, essendo i nameInternal uguali ad ogni istanza del salvataggio,
-            //si ritrovano lo stesso seriale assegnato a tutti gli internal con i seguenti nomi.
+
             var bannedPilotsList = new List<string>
             {
                 "pb_pilot_01",
@@ -73,17 +72,28 @@ namespace it.miketan.PilotSerial.Utilities
                 "pb_pilot_03",
                 "pb_pilot_04"
             };
-            
+
             Debug.Log($"[PSN] - banned pilot list: " + bannedPilotsList.ToList());
 
             EnsureLoaded();
 
+            //TODO - far sì che si cancelli la cache dei seriali nemici a ogni combattimento, esso sia con l'outcome victory o defeat.
+            //CombatOutcome CombatOutcome
+            //PilotEventType pilotEvent = ((outcome == CombatOutcome.Victory) ? PilotEventType.CombatMissionVictoryEarly : PilotEventType.CombatMissionDefeatEarly);
+            
             if (!_serialCache.TryGetValue(name, out var entry))
             {
                 entry = new PilotEntry();
                 _serialCache[name] = entry;
             }
-            
+
+            /*if (bannedPilotsList.Contains(name, StringComparer.OrdinalIgnoreCase))
+            {
+                Debug.LogFormat("[PSN] - name: " + name + " BANNATO.");
+                entry.serial = "";
+                return entry.serial;
+            }*/
+
             if (string.IsNullOrEmpty(entry.serial))
             {
                 entry.serial = GeneratePilotSn();
@@ -93,18 +103,8 @@ namespace it.miketan.PilotSerial.Utilities
             {
                 entry.faction = faction;
             }
-            
-            if (!bannedPilotsList.Contains(name, StringComparer.OrdinalIgnoreCase))
-            {
-                TrySaveCacheYaml(CacheFilePath); //Salva le modifiche su un file di cache;
-                Debug.LogFormat("[PSN] - name: " + name);
-            }
-            else
-            {
-                Debug.LogFormat("[PSN] - name: " + name + " - BANNED: no serial generated/saved.");
-                return entry.serial = "";
-            }
-                            
+
+            TrySaveCacheYaml(CacheFilePath);
             return entry.serial;
         }
 
@@ -134,7 +134,7 @@ namespace it.miketan.PilotSerial.Utilities
         private static void EnsureLoaded()
         {
             if (_loaded) return;
-            
+
             try
             {
                 if (File.Exists(CacheFilePath))
@@ -149,6 +149,7 @@ namespace it.miketan.PilotSerial.Utilities
                             _serialCache[kvp.Key] = kvp.Value ?? new PilotEntry();
                     }
                 }
+
                 _loaded = true;
             }
             catch
