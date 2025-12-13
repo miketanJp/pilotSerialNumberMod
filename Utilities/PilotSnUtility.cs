@@ -2,15 +2,14 @@ using System;
 using System.IO;
 using System.Text;
 using UnityEngine;
-using System.Reflection;
-using YamlDotNet.Serialization;
-using System.Security.Cryptography;
-using System.Collections.Generic;
 using System.Linq;
-using it.miketan.PilotSerial.Models;
+using System.Reflection;
 using PhantomBrigade.Data;
+using YamlDotNet.Serialization;
+using System.Collections.Generic;
+using System.Security.Cryptography;
+using it.miketan.PilotSerial.Models;
 using PhantomBrigade.Game;
-using PhantomBrigade.Mods;
 
 namespace it.miketan.PilotSerial.Utilities
 {
@@ -63,8 +62,7 @@ namespace it.miketan.PilotSerial.Utilities
             if (pilot == null) return null;
             var name = pilot.nameInternal.s;
             var faction = pilot.faction.s;
-
-
+            
             var bannedPilotsList = new List<string>
             {
                 "pb_pilot_01",
@@ -78,22 +76,16 @@ namespace it.miketan.PilotSerial.Utilities
             EnsureLoaded();
 
             //TODO - far sì che si cancelli la cache dei seriali nemici a ogni combattimento, esso sia con l'outcome victory o defeat.
-            //CombatOutcome CombatOutcome
-            //PilotEventType pilotEvent = ((outcome == CombatOutcome.Victory) ? PilotEventType.CombatMissionVictoryEarly : PilotEventType.CombatMissionDefeatEarly);
+            /*PersistentContext persistent = Contexts.sharedInstance.persistent;
+            var outcomeVictory = persistent.combatOutcomeProcessing.playerOutcome == CombatOutcome.Victory;
+            var outcomeDefeat = persistent.combatOutcomeProcessing.playerOutcome == CombatOutcome.Defeat;*/
             
             if (!_serialCache.TryGetValue(name, out var entry))
             {
                 entry = new PilotEntry();
                 _serialCache[name] = entry;
             }
-
-            /*if (bannedPilotsList.Contains(name, StringComparer.OrdinalIgnoreCase))
-            {
-                Debug.LogFormat("[PSN] - name: " + name + " BANNATO.");
-                entry.serial = "";
-                return entry.serial;
-            }*/
-
+            
             if (string.IsNullOrEmpty(entry.serial))
             {
                 entry.serial = GeneratePilotSn();
@@ -103,8 +95,22 @@ namespace it.miketan.PilotSerial.Utilities
             {
                 entry.faction = faction;
             }
-
-            TrySaveCacheYaml(CacheFilePath);
+            
+            //I nemici incontrati saranno tanti e "passeggeri",
+            //quindi visualizza solo i seriali in UI, ma non renderli persistenti.
+            if (entry.faction.Contains("Phantoms") && !entry.faction.Contains("Invaders"))
+            {
+                TrySaveCacheYaml(CacheFilePath);
+                Debug.LogFormat("[PSN] - Eliminate Invader: " + pilot.nameInternal.s);
+            }
+            
+            /*if (entry.faction.Contains("Invaders") && (outcomeDefeat || outcomeVictory))
+            {
+                TryRemoveYamlField(pilot, CacheFilePath);
+                Debug.LogFormat("[PSN] - Eliminate Invader: " + pilot.nameInternal.s);   
+            }*/
+            
+            
             return entry.serial;
         }
 
@@ -128,6 +134,7 @@ namespace it.miketan.PilotSerial.Utilities
             }
 
             var token = sb.ToString();
+            
             return $"PIL-{token.Substring(0, 4)}-{token.Substring(4, 4)}";
         }
 
@@ -154,7 +161,7 @@ namespace it.miketan.PilotSerial.Utilities
             }
             catch
             {
-                // Non blocca, ma _loaded rimarrà a false.
+                // Non blocca, ma _loaded rimarrà false.
             }
 
             Debug.LogFormat("[PSN] - entries loaded = " + _serialCache.Count + " | " + _loaded);
@@ -178,5 +185,35 @@ namespace it.miketan.PilotSerial.Utilities
                 // Evita di rompere il gioco
             }
         }
+        
+        /*private static void TryRemoveYamlField(PersistentEntity enemyPilot, string path)
+        {
+
+            try
+            {
+                var yamlContent = File.ReadAllText(path);
+                var deserializer = new DeserializerBuilder().Build();
+                var serializer = new SerializerBuilder().Build();
+                var updateYaml = serializer.Serialize(root);
+                var data = deserializer.Deserialize<Dictionary<string, PilotEntry>>(yamlContent);
+
+                if (yamlContent.Contains("Invaders") && yamlContent.Contains(enemyPilot.nameInternal.s))
+                {
+                    if (data.Remove(enemyPilot.nameInternal.s) && data.Remove(enemyPilot.faction.s))
+                    {
+                        File.WriteAllText(path, updateYaml);
+                        Debug.Log($"[PSN] - Removed Pilot {enemyPilot.nameInternal.s}");
+                    }
+                    else
+                    {
+                        Debug.Log($"[PSN] - Pilot {enemyPilot.nameInternal.s} not found");
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // Evita di rompere il gioco
+            }
+        }*/
     }
 }
