@@ -1,0 +1,18 @@
+priority: 0
+colorHue: 0.499
+id: it.miketan.psn
+ver: 1.5.0
+url: https://next.nexusmods.com/profile/miketanJp
+includesConfigOverrides: false
+includesConfigEdits: false
+includesConfigTrees: false
+includesLibraries: true
+includesTextures: false
+includesLocalizationEdits: false
+includesLocalizations: false
+includesAssetBundles: false
+gameVersionMin: 2.0
+gameVersionMax: 
+name: Pilot Serial Number Mod
+desc: >-
+  Displays a unique pilot serial (S/N: PIL-XXXX-XXXX) under the biography in Phantom Brigade. Generated once per pilot and cached per save for Phantoms; enemies are UI‑only. No biography or game data is modified.
