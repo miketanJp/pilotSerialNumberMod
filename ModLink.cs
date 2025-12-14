@@ -1,6 +1,3 @@
-using HarmonyLib;
-using UnityEngine;
-
 namespace it.miketan.PilotSerial
 {
     public partial class ModLink : PhantomBrigade.Mods.ModLink
@@ -15,7 +12,7 @@ namespace it.miketan.PilotSerial
             ModID = modID;
             ModPath = metadata.path;
 
-            EnableHarmonyFileLog();
+            //EnableHarmonyFileLog(); //Scommentare per eventuale debug della libreria; viene generato un file di testo sul desktop.
         }
     }
 }
