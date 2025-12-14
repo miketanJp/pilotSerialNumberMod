@@ -41,13 +41,13 @@ namespace it.miketan.PilotSerial.Utilities
                     _saveName = DataManagerSave.saveName;
                     //Debug.LogFormat("[PSN] - Cache directory name: " + _saveName);
 
-                    var dir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                    var dir = ModLink.ModPath + "/" + "psn_cache/";
                     return Path.Combine(dir, _saveName);
                 }
                 catch
                 {
                     //Debug.LogWarningFormat("[PSN] - Cache directory could not be located. Creating it.");
-                    return Path.Combine(Environment.CurrentDirectory, _saveName);
+                    return Path.Combine(ModLink.ModPath, _saveName);
                 }
             }
         }

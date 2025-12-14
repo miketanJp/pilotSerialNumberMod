@@ -1,6 +1,6 @@
 namespace it.miketan.PilotSerial
 {
-    public partial class ModLink : PhantomBrigade.Mods.ModLink
+    internal class ModLink : PhantomBrigade.Mods.ModLink
     {
         internal static int ModIndex;
         internal static string ModID;
